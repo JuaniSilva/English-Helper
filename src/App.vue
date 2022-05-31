@@ -4,12 +4,7 @@ import NavBar from './components/NavBar.vue';
 
 <template>
     <NavBar />
-    <v-parallax
-        height="100%"
-        src="https://cdn.vuetifyjs.com/images/parallax/material2.jpg"
-    >
-        <router-view />
-    </v-parallax>
+    <router-view />
 </template>
 
 <style lang="scss">
@@ -18,11 +13,15 @@ html {
     overflow: hidden !important;
 }
 body {
+    margin: 0;
     font-family: 'Montserrat', sans-serif;
     color: rgb(255, 255, 255);
+    background-color: #f5f5f5;
+    color: rgba(0, 0, 0, 0.87);
 }
 h1 {
     margin: 2rem 0;
+    text-transform: uppercase;
 }
 *,
 *::after,
