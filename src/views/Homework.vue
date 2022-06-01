@@ -1,197 +1,215 @@
 <script setup>
-import { onMounted, ref } from 'vue';
-import { getFirestore, collection, getDocs, addDoc } from 'firebase/firestore';
+import { onMounted, reactive, ref, watch } from 'vue';
+import {
+	getFirestore,
+	collection,
+	query,
+	addDoc,
+	onSnapshot,
+	orderBy,
+	updateDoc,
+	doc
+} from 'firebase/firestore';
+import Loading from '../components/Loading.vue';
+import ExtensionPanel from '@/components/Homework/ExtensionPanel.vue';
 
-const chores = ref([
-    // {
-    //     class: 'Class 12/05',
-    //     text: 'ejemplo piola',
-    //     endDate: '19/05',
-    //     activities: [
-    //         {
-    //             exercise: 'Part 1',
-    //             book: 'Workbook',
-    //             page: '12'
-    //         }
-    //     ],
-    //     isCompleted: true,
-    //     id: 1
-    // },
-    // {
-    //     class: 'Class 12/05',
-    //     text: 'ejemplo piola',
-    //     endDate: '19/05',
-    //     activities: [
-    //         {
-    //             exercise: 'Part 1',
-    //             book: 'Workbook',
-    //             page: '12'
-    //         }
-    //     ],
-    //     isCompleted: false,
-    //     id: 2
-    // },
-    // {
-    //     class: 'Class 12/05',
-    //     text: 'ejemplo piola',
-    //     endDate: '19/05',
-    //     activities: [
-    //         {
-    //             exercise: 'Part 1',
-    //             book: 'Workbook',
-    //             page: '12'
-    //         }
-    //     ],
-    //     isCompleted: true,
-    //     id: 3
-    // }
-]);
+const homeworkModal = ref(false);
 
-const db = getFirestore();
-onMounted(async () => {
-    try {
-        const querySnapshot = await getDocs(collection(db, 'chores'));
+const loading = ref(false);
 
-        querySnapshot.forEach((doc) => {
-            chores.value.push(doc.data());
-        });
-    } catch (error) {}
+let newChore = reactive({
+	title: '',
+	endDate: '',
+	activities: {
+		exercise: '',
+		book: '',
+		page: ''
+	},
+	createdAt: '',
+	editedAt: '',
+	isCompleted: false
 });
 
+const chores = ref([]);
+
+const db = getFirestore();
+
+onMounted(async () => {
+	loading.value = true;
+
+	onSnapshot(
+		query(collection(db, 'chores'), orderBy('createdAt', 'asc')),
+		async (snapshot) => {
+			for (let firebaseDoc of snapshot.docChanges()) {
+				if (firebaseDoc.type === 'added') {
+					chores.value.push({
+						...firebaseDoc.doc.data(),
+						id: firebaseDoc.doc.id
+					});
+				} else if (firebaseDoc.type === 'removed') {
+					chores.value.splice(firebaseDoc.oldIndex, 1);
+				}
+			}
+		}
+	);
+});
+
+// Check if chores had been fetched and remove loading if it did
+watch(
+	() => [...chores.value],
+	async (newVal, oldVal) => {
+		if (!oldVal.length && newVal.length) {
+			loading.value = false;
+		}
+	}
+);
+
 async function addChore() {
-    try {
-        const docRef = await addDoc(collection(db, 'chores'), {
-            class: 'Class 12/05',
-            endDate: '19/05',
-            activities: [
-                {
-                    exercise: 'Part 1',
-                    book: 'Workbook',
-                    page: '12'
-                }
-            ],
-            isCompleted: true,
-            id: 1
-        });
-        console.log('Document written with ID: ', docRef.id);
-    } catch (e) {
-        console.error('Error adding document: ', e);
-    }
+	try {
+		loading.value = true;
+
+		if (newChore.endDate) newChore.endDate = new Date(newChore.endDate);
+
+		newChore.createdAt = new Date();
+
+		let docRef = await addDoc(collection(db, 'chores'), newChore);
+
+		newChore = {
+			title: '',
+			endDate: '',
+			activities: {
+				exercise: '',
+				book: '',
+				page: ''
+			},
+			createdAt: '',
+			editedAt: ''
+		};
+
+		loading.value = false;
+		homeworkModal.value = false;
+		console.log('Document written with ID: ', docRef.id);
+		return;
+	} catch (e) {
+		loading.value = false;
+		console.error('Error adding document: ', e);
+	}
 }
 
-function handleStatus(targetChore) {
-    const choreIndex = chores.value.findIndex(
-        (chore) => chore.id == targetChore.id
-    );
-    targetChore.isCompleted = !targetChore.isCompleted;
+// TODO: REHACER
+async function handleStatus(targetChore) {
+	await updateDoc(doc(db, 'chores', targetChore.id), {
+		isCompleted: !targetChore.isCompleted
+	});
 
-    chores.value[choreIndex] = targetChore;
+	const targetIndex = chores.value.findIndex(
+		(chore) => chore.id === targetChore.id
+	);
+
+	let choreCopy = chores.value;
+	choreCopy[targetIndex] = {
+		...choreCopy[targetIndex],
+		isCompleted: !choreCopy[targetIndex].isCompleted
+	};
+
+	chores.value = choreCopy;
 }
 </script>
 <template>
-    <section>
-        <h1>HOMEWORK</h1>
-        <v-btn @click="addChore">ADD CHORE</v-btn>
-        <v-expansion-panels variant="accordion" class="panels">
-            <v-expansion-panel
-                v-for="(chore, i) in chores"
-                :key="i"
-                class="panel"
-            >
-                <v-expansion-panel-title class="panel-title">
-                    <template v-slot:default="exapnded">
-                        <div class="panel-content">
-                            <h6>{{ chore.class }}</h6>
-                            <v-chip
-                                v-if="chore.isCompleted"
-                                class="ma-1 tag"
-                                close
-                                color="green"
-                                label
-                                text-color="white"
-                            >
-                                <v-icon start icon="mdi-check"></v-icon>
-                                Done
-                            </v-chip>
-                        </div>
-                    </template>
-                </v-expansion-panel-title>
-                <v-expansion-panel-text class="panel-text">
-                    <span class="due-date"
-                        ><v-chip v-if="chore.endDate" class="ma-2">
-                            Due to: {{ chore.endDate }}
-                        </v-chip></span
-                    >
-                    <ul>
-                        <li v-for="(activity, i) in chore.activities">
-                            {{ activity.exercise }} - {{ activity.book }} - Page
-                            {{ activity.page }}
-                        </li>
-                    </ul>
-                    <footer>
-                        <v-btn
-                            v-if="!chore.isCompleted"
-                            size="small"
-                            color="info"
-                            @click="handleStatus(chore)"
-                        >
-                            Mark as done
-                        </v-btn>
-                        <v-btn
-                            v-else
-                            size="small"
-                            color="error"
-                            @click="handleStatus(chore)"
-                        >
-                            Mark as incompleted
-                        </v-btn>
-                    </footer>
-                </v-expansion-panel-text>
-            </v-expansion-panel>
-        </v-expansion-panels>
-    </section>
+	<section>
+		<h1>HOMEWORK</h1>
+		<Loading v-if="loading" />
+		<ExtensionPanel v-else :chores="chores" @handle-status="handleStatus" />
+
+		<v-btn @click="homeworkModal = true" class="add-chore">ADD CHORE</v-btn>
+		<v-dialog v-model="homeworkModal">
+			<v-card>
+				<v-card-title>
+					<h2>New Chore</h2>
+				</v-card-title>
+				<v-card-text>
+					<v-container>
+						<v-row>
+							<!-- Chore Title -->
+							<v-col cols="12">
+								<v-text-field
+									v-model="newChore.title"
+									label="Chore Title"
+									required
+								></v-text-field>
+							</v-col>
+							<!-- Activity -->
+							<v-divider></v-divider>
+							<v-col cols="12">
+								<h3>Activity</h3>
+							</v-col>
+							<v-col cols="12" sm="6" md="4">
+								<v-text-field
+									v-model="newChore.activities.exercise"
+									label="Activity Part"
+									hint="ex: Part 1, Exam Task..."
+									persistent-hint
+									required
+								></v-text-field>
+							</v-col>
+							<v-col cols="12" sm="6" md="4">
+								<v-text-field
+									v-model="newChore.activities.book"
+									label="Book"
+									hint="ex: Student's Book"
+									persistent-hint
+									required
+								></v-text-field>
+							</v-col>
+							<v-col cols="12" sm="6" md="4">
+								<v-text-field
+									v-model.number="newChore.activities.page"
+									label="Page"
+									required
+								></v-text-field>
+							</v-col>
+							<!-- End Date -->
+							<v-divider></v-divider>
+							<v-col col="12">
+								<h3>Due Date</h3>
+								<input type="date" v-model="newChore.endDate" />
+								<!-- <el-date-picker v-model="newChore.endDate" type="date" placeholder="Due Date" /> -->
+							</v-col>
+						</v-row>
+					</v-container>
+				</v-card-text>
+				<v-card-actions>
+					<v-spacer></v-spacer>
+					<Loading v-if="loading" />
+					<v-btn
+						color="blue-darken-1"
+						text
+						@click="homeworkModal = false"
+					>
+						Close
+					</v-btn>
+					<v-btn color="blue-darken-1" text @click="addChore">
+						Save
+					</v-btn>
+				</v-card-actions>
+			</v-card>
+		</v-dialog>
+	</section>
 </template>
 
 <style lang="scss" scoped>
 section {
-    display: flex;
-    flex-direction: column;
-    margin: 0 auto;
-    max-width: 800px;
-    h1 {
-        text-align: center;
-    }
-    .panel {
-        .panel-title {
-            .panel-content {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                width: 100%;
-                h6 {
-                    font-size: 14px;
-                }
-                .tag {
-                    background-color: #ffffff;
-                    margin: 0 1rem;
-                }
-            }
-        }
-        .panel-text {
-            position: relative;
-            padding: 0.5rem;
-            .due-date {
-                position: absolute;
-                top: 4px;
-                right: 24px;
-            }
-            footer {
-                margin-top: 2rem;
-                display: flex;
-                width: 100%;
-                justify-content: flex-end;
-            }
-        }
-    }
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	margin: 0 auto;
+	max-width: 800px;
+	h1 {
+		text-align: center;
+	}
+	.add-chore {
+		align-self: stretch;
+		margin-top: 1rem;
+	}
 }
 </style>
