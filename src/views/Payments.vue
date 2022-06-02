@@ -5,14 +5,20 @@ import Button from '@/components/Button.vue';
 const CVUText = ref('CVU');
 const aliasText = ref('Alias: stevedvd.mp');
 
-function copyText(actualText, copyText) {
-	const placeholder = actualText;
-
-	navigator.clipboard.writeText(copyText);
-	[actualText][0].value = 'Copied!';
+function copyCVU() {
+	navigator.clipboard.writeText('0000003100071487853926');
+	CVUText.value = 'Copied!';
 
 	setTimeout(() => {
-		[actualText][0].value = placeholder;
+		CVUText.value = placeholder;
+	}, 2000);
+}
+function copyAlias() {
+	navigator.clipboard.writeText('stevedvd.mp');
+	CVUText.value = 'Copied!';
+
+	setTimeout(() => {
+		CVUText.value = placeholder;
 	}, 2000);
 }
 </script>
@@ -24,10 +30,10 @@ function copyText(actualText, copyText) {
 		</header>
 		<div>
 			<font-awesome-icon icon="phone" />
-			<Button @click="copyText(ref(CVUText), '0000003100071487853926')">
+			<Button @click="copyCVU">
 				{{ CVUText }}
 			</Button>
-			<Button @click="copyText(ref(aliasText), 'stevedvd.mp')">
+			<Button @click="copyAlias">
 				{{ aliasText }}
 			</Button>
 		</div>
