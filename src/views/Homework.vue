@@ -10,7 +10,7 @@ import {
 	updateDoc,
 	doc
 } from 'firebase/firestore';
-import Loading from '../components/Loading.vue';
+import Loading from '@/components/Loading.vue';
 import ExtensionPanel from '@/components/Homework/ExtensionPanel.vue';
 
 const homeworkModal = ref(false);
@@ -36,7 +36,7 @@ const db = getFirestore();
 
 onMounted(async () => {
 	loading.value = true;
-
+	// Get initial chores and update them in real time
 	onSnapshot(
 		query(collection(db, 'chores'), orderBy('createdAt', 'asc')),
 		async (snapshot) => {
@@ -96,7 +96,6 @@ async function addChore() {
 	}
 }
 
-// TODO: REHACER
 async function handleStatus(targetChore) {
 	await updateDoc(doc(db, 'chores', targetChore.id), {
 		isCompleted: !targetChore.isCompleted
