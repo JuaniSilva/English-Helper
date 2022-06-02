@@ -17,7 +17,7 @@ const homeworkModal = ref(false);
 
 const loading = ref(false);
 
-let newChore = reactive({
+let newChoreInitial = reactive({
 	title: '',
 	endDate: '',
 	activities: {
@@ -30,9 +30,15 @@ let newChore = reactive({
 	isCompleted: false
 });
 
+const newChore = reactive({ ...newChoreInitial });
+
 const chores = ref([]);
 
 const db = getFirestore();
+
+function resetReactive(dirtyReactive, initialReactive) {
+	Object.assign(dirtyReactive, initialReactive);
+}
 
 onMounted(async () => {
 	loading.value = true;
@@ -74,20 +80,10 @@ async function addChore() {
 
 		let docRef = await addDoc(collection(db, 'chores'), newChore);
 
-		newChore = {
-			title: '',
-			endDate: '',
-			activities: {
-				exercise: '',
-				book: '',
-				page: ''
-			},
-			createdAt: '',
-			editedAt: ''
-		};
-
 		loading.value = false;
 		homeworkModal.value = false;
+
+		resetReactive(newChore, newChoreInitial);
 		console.log('Document written with ID: ', docRef.id);
 		return;
 	} catch (e) {
