@@ -10,15 +10,15 @@ function copyCVU() {
 	CVUText.value = 'Copied!';
 
 	setTimeout(() => {
-		CVUText.value = placeholder;
+		CVUText.value = 'CVU';
 	}, 2000);
 }
 function copyAlias() {
 	navigator.clipboard.writeText('stevedvd.mp');
-	CVUText.value = 'Copied!';
+	aliasText.value = 'Copied!';
 
 	setTimeout(() => {
-		CVUText.value = placeholder;
+		aliasText.value = 'Alias: stevedvd.mp';
 	}, 2000);
 }
 </script>
