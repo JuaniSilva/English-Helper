@@ -24,5 +24,9 @@ button {
 	border-radius: 10px;
 	margin: 1rem;
 	color: white;
+	display: inline-flex;
+	justify-content: center;
+	align-items: center;
+	gap: 0.5rem;
 }
 </style>

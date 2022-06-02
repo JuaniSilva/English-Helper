@@ -32,9 +32,11 @@ function copyAlias() {
 			<font-awesome-icon icon="phone" />
 			<Button @click="copyCVU">
 				{{ CVUText }}
+				<img src="../../public/clipboard.png" alt="" />
 			</Button>
 			<Button @click="copyAlias">
 				{{ aliasText }}
+				<img src="../../public/clipboard.png" alt="" />
 			</Button>
 		</div>
 	</section>
@@ -44,7 +46,6 @@ function copyAlias() {
 section {
 	display: flex;
 	flex-direction: column;
-	justify-content: center;
 	align-items: center;
 	header {
 		text-align: center;
@@ -52,6 +53,10 @@ section {
 			color: grey;
 			font-weight: 400;
 		}
+	}
+	img {
+		aspect-ratio: 1;
+		width: 16px;
 	}
 }
 </style>
