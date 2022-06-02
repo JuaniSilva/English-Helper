@@ -16,4 +16,13 @@ const props = defineProps({
 	</button>
 </template>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+@import '../styles/variables';
+button {
+	padding: 0.5rem 1rem;
+	background-color: $info;
+	border-radius: 10px;
+	margin: 1rem;
+	color: white;
+}
+</style>
