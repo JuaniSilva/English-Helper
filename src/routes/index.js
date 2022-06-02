@@ -22,7 +22,10 @@ const router = createRouter({
 		{
 			path: '/homework',
 			name: 'homework',
-			component: () => import('../views/Homework.vue')
+			component: () => import('../views/Homework.vue'),
+			meta: {
+				requiresAuth: true
+			}
 		},
 		{
 			path: '/payments',
