@@ -25,13 +25,6 @@ const router = createRouter({
 			component: () => import('../views/Homework.vue')
 		},
 		{
-			path: '/feed',
-			component: () => import('../views/Feed.vue'),
-			meta: {
-				requiresAuth: true
-			}
-		},
-		{
 			path: '/payments',
 			component: () => import('../views/Payments.vue'),
 			meta: {
