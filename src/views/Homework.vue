@@ -17,7 +17,7 @@ const homeworkModal = ref(false);
 
 const loading = ref(false);
 
-let newChoreInitial = reactive({
+let newChore = ref({
 	title: '',
 	endDate: '',
 	activities: {
@@ -29,8 +29,6 @@ let newChoreInitial = reactive({
 	editedAt: '',
 	isCompleted: false
 });
-
-const newChore = reactive({ ...newChoreInitial });
 
 const chores = ref([]);
 
@@ -74,16 +72,29 @@ async function addChore() {
 	try {
 		loading.value = true;
 
-		if (newChore.endDate) newChore.endDate = new Date(newChore.endDate);
+		if (newChore.value.endDate)
+			newChore.value.endDate = new Date(newChore.value.endDate);
 
-		newChore.createdAt = new Date();
+		newChore.value.createdAt = new Date();
 
-		let docRef = await addDoc(collection(db, 'chores'), newChore);
+		let docRef = await addDoc(collection(db, 'chores'), newChore.value);
 
 		loading.value = false;
 		homeworkModal.value = false;
 
-		resetReactive(newChore, newChoreInitial);
+		newChore.value = {
+			title: '',
+			endDate: '',
+			activities: {
+				exercise: '',
+				book: '',
+				page: ''
+			},
+			createdAt: '',
+			editedAt: '',
+			isCompleted: false
+		};
+
 		console.log('Document written with ID: ', docRef.id);
 		return;
 	} catch (e) {
@@ -175,7 +186,6 @@ async function handleStatus(targetChore) {
 				</v-card-text>
 				<v-card-actions>
 					<v-spacer></v-spacer>
-					<Loading v-if="loading" />
 					<v-btn
 						color="blue-darken-1"
 						text
@@ -183,7 +193,8 @@ async function handleStatus(targetChore) {
 					>
 						Close
 					</v-btn>
-					<v-btn color="blue-darken-1" text @click="addChore">
+					<Loading v-if="loading" size="small" />
+					<v-btn v-else color="blue-darken-1" text @click="addChore">
 						Save
 					</v-btn>
 				</v-card-actions>
