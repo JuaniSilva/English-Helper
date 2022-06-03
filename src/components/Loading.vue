@@ -1,6 +1,13 @@
-<script setup></script>
+<script setup>
+const props = defineProps({
+	size: {
+		tpye: 'string',
+		default: 'medium'
+	}
+});
+</script>
 <template>
-	<div class="lds-ring">
+	<div class="lds-ring" :class="[props.size]">
 		<div></div>
 		<div></div>
 		<div></div>
@@ -45,5 +52,8 @@
 	100% {
 		transform: rotate(360deg);
 	}
+}
+.small {
+	transform: scale(0.25);
 }
 </style>
