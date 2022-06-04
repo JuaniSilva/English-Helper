@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, reactive, ref, watch } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import {
 	getFirestore,
 	collection,
@@ -8,10 +8,12 @@ import {
 	onSnapshot,
 	orderBy,
 	updateDoc,
-	doc
+	doc,
+	where
 } from 'firebase/firestore';
 import Loading from '@/components/Loading.vue';
 import ExtensionPanel from '@/components/Homework/ExtensionPanel.vue';
+import { getCurrentUser } from '@/composables/user/getUser';
 
 const homeworkModal = ref(false);
 
@@ -33,16 +35,17 @@ let newChore = ref({
 const chores = ref([]);
 
 const db = getFirestore();
-
-function resetReactive(dirtyReactive, initialReactive) {
-	Object.assign(dirtyReactive, initialReactive);
-}
+const { user } = getCurrentUser();
 
 onMounted(async () => {
 	loading.value = true;
 	// Get initial chores and update them in real time
 	onSnapshot(
-		query(collection(db, 'chores'), orderBy('createdAt', 'asc')),
+		query(
+			collection(db, 'chores'),
+			where('userUid', '==', user.value.uid),
+			orderBy('createdAt', 'asc')
+		),
 		async (snapshot) => {
 			for (let firebaseDoc of snapshot.docChanges()) {
 				if (firebaseDoc.type === 'added') {
@@ -77,7 +80,10 @@ async function addChore() {
 
 		newChore.value.createdAt = new Date();
 
-		let docRef = await addDoc(collection(db, 'chores'), newChore.value);
+		let docRef = await addDoc(collection(db, 'chores'), {
+			...newChore.value,
+			userUid: user.value.uid
+		});
 
 		loading.value = false;
 		homeworkModal.value = false;
