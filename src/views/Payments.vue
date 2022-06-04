@@ -29,7 +29,6 @@ function copyAlias() {
 			<h4>Fee: $4000 per month</h4>
 		</header>
 		<div>
-			<font-awesome-icon icon="phone" />
 			<Button @click="copyCVU">
 				{{ CVUText }}
 				<img src="../../public/clipboard.png" alt="" />
