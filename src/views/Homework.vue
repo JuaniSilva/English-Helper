@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import {
 	getFirestore,
 	collection,
@@ -18,6 +18,7 @@ import { getCurrentUser } from '@/composables/user/getUser';
 const homeworkModal = ref(false);
 
 const loading = ref(false);
+const creatingChore = ref(false);
 
 let newChore = ref({
 	title: '',
@@ -40,25 +41,37 @@ const { user } = getCurrentUser();
 onMounted(async () => {
 	loading.value = true;
 	// Get initial chores and update them in real time
-	onSnapshot(
-		query(
-			collection(db, 'chores'),
-			where('userUid', '==', user.value.uid),
-			orderBy('createdAt', 'asc')
-		),
-		async (snapshot) => {
-			for (let firebaseDoc of snapshot.docChanges()) {
-				if (firebaseDoc.type === 'added') {
-					chores.value.push({
-						...firebaseDoc.doc.data(),
-						id: firebaseDoc.doc.id
-					});
-				} else if (firebaseDoc.type === 'removed') {
-					chores.value.splice(firebaseDoc.oldIndex, 1);
+	try {
+		onSnapshot(
+			query(
+				collection(db, 'chores'),
+				where('userUid', '==', user.value.uid),
+				orderBy('createdAt', 'asc')
+			),
+			async (snapshot) => {
+				if (snapshot.docChanges().length === 0) {
+					loading.value = false;
+					return;
+				}
+				for (let firebaseDoc of snapshot.docChanges()) {
+					if (firebaseDoc.type === 'added') {
+						chores.value.push({
+							...firebaseDoc.doc.data(),
+							id: firebaseDoc.doc.id
+						});
+					} else if (firebaseDoc.type === 'removed') {
+						chores.value.splice(firebaseDoc.oldIndex, 1);
+					}
 				}
 			}
-		}
-	);
+		);
+	} catch (error) {
+		loading.value = false;
+		console.error(error);
+	}
+});
+const hasChores = computed(() => {
+	return !loading.value && !chores.value.length;
 });
 
 // Check if chores had been fetched and remove loading if it did
@@ -73,7 +86,7 @@ watch(
 
 async function addChore() {
 	try {
-		loading.value = true;
+		creatingChore.value = true;
 
 		if (newChore.value.endDate)
 			newChore.value.endDate = new Date(newChore.value.endDate);
@@ -85,7 +98,7 @@ async function addChore() {
 			userUid: user.value.uid
 		});
 
-		loading.value = false;
+		creatingChore.value = false;
 		homeworkModal.value = false;
 
 		newChore.value = {
@@ -104,7 +117,7 @@ async function addChore() {
 		console.log('Document written with ID: ', docRef.id);
 		return;
 	} catch (e) {
-		loading.value = false;
+		creatingChore.value = false;
 		console.error('Error adding document: ', e);
 	}
 }
@@ -131,6 +144,7 @@ async function handleStatus(targetChore) {
 	<section>
 		<h1>HOMEWORK</h1>
 		<Loading v-if="loading" />
+		<p v-else-if="hasChores">You dont have any chore</p>
 		<ExtensionPanel v-else :chores="chores" @handle-status="handleStatus" />
 
 		<v-btn @click="homeworkModal = true" class="add-chore">ADD CHORE</v-btn>
@@ -199,7 +213,7 @@ async function handleStatus(targetChore) {
 					>
 						Close
 					</v-btn>
-					<Loading v-if="loading" size="small" />
+					<Loading v-if="creatingChore" size="small" />
 					<v-btn v-else color="blue-darken-1" text @click="addChore">
 						Save
 					</v-btn>
