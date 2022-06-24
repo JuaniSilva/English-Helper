@@ -127,7 +127,7 @@ function onCreate() {
 				<n-button secondary type="primary" @click="addChore">
 					Create Chore
 				</n-button>
-				<n-button secondary type="error" @click="emit('show', false)">
+				<n-button secondary type="error" @click="emit('update', false)">
 					Cancel
 				</n-button>
 			</div>
