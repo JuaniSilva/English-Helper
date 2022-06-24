@@ -4,7 +4,6 @@ import {
 	getFirestore,
 	collection,
 	query,
-	addDoc,
 	onSnapshot,
 	orderBy,
 	updateDoc,
@@ -13,25 +12,12 @@ import {
 } from 'firebase/firestore';
 import Loading from '@/components/Loading.vue';
 import ExtensionPanel from '@/components/Homework/ExtensionPanel.vue';
+import CreateChoreModal from '@/components/Homework/CreateChoreModal.vue';
 import { getCurrentUser } from '@/composables/user/getUser';
 
 const homeworkModal = ref(false);
 
 const loading = ref(false);
-const creatingChore = ref(false);
-
-let newChore = ref({
-	title: '',
-	endDate: '',
-	activities: {
-		exercise: '',
-		book: '',
-		page: ''
-	},
-	createdAt: '',
-	editedAt: '',
-	isCompleted: false
-});
 
 const chores = ref([]);
 
@@ -84,45 +70,7 @@ watch(
 	}
 );
 
-async function addChore() {
-	try {
-		creatingChore.value = true;
-
-		if (newChore.value.endDate)
-			newChore.value.endDate = new Date(newChore.value.endDate);
-
-		newChore.value.createdAt = new Date();
-
-		let docRef = await addDoc(collection(db, 'chores'), {
-			...newChore.value,
-			userUid: user.value.uid
-		});
-
-		creatingChore.value = false;
-		homeworkModal.value = false;
-
-		newChore.value = {
-			title: '',
-			endDate: '',
-			activities: {
-				exercise: '',
-				book: '',
-				page: ''
-			},
-			createdAt: '',
-			editedAt: '',
-			isCompleted: false
-		};
-
-		console.log('Document written with ID: ', docRef.id);
-		return;
-	} catch (e) {
-		creatingChore.value = false;
-		console.error('Error adding document: ', e);
-	}
-}
-
-async function handleStatus(targetChore) {
+async function markAsDone(targetChore) {
 	await updateDoc(doc(db, 'chores', targetChore.id), {
 		isCompleted: !targetChore.isCompleted
 	});
@@ -139,87 +87,22 @@ async function handleStatus(targetChore) {
 
 	chores.value = choreCopy;
 }
+
+function hide(val) {
+	homeworkModal.value = val;
+}
 </script>
 <template>
 	<section>
 		<h1>HOMEWORK</h1>
 		<Loading v-if="loading" />
 		<p v-else-if="hasChores">You dont have any chore</p>
-		<ExtensionPanel v-else :chores="chores" @handle-status="handleStatus" />
-
+		<ExtensionPanel v-else :chores="chores" @handle-status="markAsDone" />
 		<v-btn @click="homeworkModal = true" class="add-chore">ADD CHORE</v-btn>
-		<v-dialog v-model="homeworkModal">
-			<v-card>
-				<v-card-title>
-					<h2>New Chore</h2>
-				</v-card-title>
-				<v-card-text>
-					<v-container>
-						<v-row>
-							<!-- Chore Title -->
-							<v-col cols="12">
-								<v-text-field
-									v-model="newChore.title"
-									label="Chore Title"
-									required
-								></v-text-field>
-							</v-col>
-							<!-- Activity -->
-							<v-divider></v-divider>
-							<v-col cols="12">
-								<h3>Activity</h3>
-							</v-col>
-							<v-col cols="12" sm="6" md="4">
-								<v-text-field
-									v-model="newChore.activities.exercise"
-									label="Activity Part"
-									hint="ex: Part 1, Exam Task..."
-									persistent-hint
-									required
-								></v-text-field>
-							</v-col>
-							<v-col cols="12" sm="6" md="4">
-								<v-text-field
-									v-model="newChore.activities.book"
-									label="Book"
-									hint="ex: Student's Book"
-									persistent-hint
-									required
-								></v-text-field>
-							</v-col>
-							<v-col cols="12" sm="6" md="4">
-								<v-text-field
-									v-model.number="newChore.activities.page"
-									label="Page"
-									required
-								></v-text-field>
-							</v-col>
-							<!-- End Date -->
-							<v-divider></v-divider>
-							<v-col col="12">
-								<h3>Due Date</h3>
-								<input type="date" v-model="newChore.endDate" />
-								<!-- <el-date-picker v-model="newChore.endDate" type="date" placeholder="Due Date" /> -->
-							</v-col>
-						</v-row>
-					</v-container>
-				</v-card-text>
-				<v-card-actions>
-					<v-spacer></v-spacer>
-					<v-btn
-						color="blue-darken-1"
-						text
-						@click="homeworkModal = false"
-					>
-						Close
-					</v-btn>
-					<Loading v-if="creatingChore" size="small" />
-					<v-btn v-else color="blue-darken-1" text @click="addChore">
-						Save
-					</v-btn>
-				</v-card-actions>
-			</v-card>
-		</v-dialog>
+		<CreateChoreModal
+			v-model:show="homeworkModal"
+			@update="hide"
+		></CreateChoreModal>
 	</section>
 </template>
 
@@ -237,5 +120,9 @@ section {
 		align-self: stretch;
 		margin-top: 1rem;
 	}
+}
+.flatpickr-input {
+	border: 1px #000 solid;
+	color: #000;
 }
 </style>
