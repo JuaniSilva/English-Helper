@@ -20,21 +20,17 @@ const firebaseConfig = {
 
 const firebaseApp = initializeApp(firebaseConfig);
 
+// Date Picker
+
+import VueFlatPickr from 'vue-flatpickr-component';
+import 'flatpickr/dist/flatpickr.css';
+
+app.use(VueFlatPickr);
+
 // Vuetify
 import vuetify from './plugins/vuetify';
 
 app.use(vuetify);
 
-// Font Awesome
-
-import { library } from '@fortawesome/fontawesome-svg-core';
-
-import { faPaste, faPhone } from '@fortawesome/free-solid-svg-icons';
-
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-
-library.add(faPaste);
-
-app.component(' font-awesome-icon', FontAwesomeIcon);
 
 app.mount('#app');
