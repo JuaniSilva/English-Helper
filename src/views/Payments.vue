@@ -1,6 +1,5 @@
 <script setup>
 import { ref, toRef } from 'vue';
-import Button from '@/components/Button.vue';
 import { CopyOutline } from '@vicons/ionicons5';
 
 const CBUText = ref('CVU');
