@@ -7,6 +7,7 @@ const email = ref('');
 const password = ref('');
 const isLoading = ref(false);
 const successful = ref(false);
+const error = ref('');
 
 async function register() {
 	isLoading.value = true;
@@ -21,10 +22,12 @@ async function register() {
 		successful.value = true;
 
 		router.push('/homework');
-	} catch (error) {
+	} catch (err) {
 		isLoading.value = false;
-		console.log(error.code);
-		alert(error.message);
+		error.value = err.code;
+		setTimeout(() => {
+			error.value = '';
+		}, 2000);
 	}
 }
 </script>
@@ -33,30 +36,23 @@ async function register() {
 	<section>
 		<h1>Create an Account</h1>
 		<form @submit.prevent class="register-form">
-			<v-text-field
-				v-model="email"
-				variant="underlined"
-				density="default"
-				label="Email"
+			<n-input
+				v-model:value="email"
+				type="text"
 				placeholder="example@example.com"
 			/>
-			<v-text-field
-				v-model="password"
-				variant="underlined"
-				density="default"
-				label="Password"
-				type="password"
-			/>
-			<v-btn color="info" @click="register" type="submit">
-				<v-progress-circular
-					v-if="isLoading"
-					width="3"
-					:size="25"
-					indeterminate
-					class="loading"
-				/>
+			<n-input v-model:value="password" type="password" />
+			<n-button
+				strong
+				secondary
+				type="info"
+				@click="register"
+				:loading="isLoading"
+				attr-type="submit"
+			>
 				Submit
-			</v-btn>
+			</n-button>
+			<p v-if="error" class="error">* {{ error }} *</p>
 		</form>
 	</section>
 </template>
@@ -72,12 +68,10 @@ section {
 		padding: 1rem;
 		display: flex;
 		flex-direction: column;
-		button {
-			margin-top: 1rem;
-			.loading {
-				margin-left: -16px;
-				margin-right: 12px;
-			}
+		gap: 1rem;
+		.error {
+			color: red;
+			text-align: center;
 		}
 	}
 }

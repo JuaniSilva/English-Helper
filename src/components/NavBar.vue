@@ -114,6 +114,7 @@ nav {
 	::v-deep(.n-base-wave-active) {
 		animation: none !important;
 	}
+	padding: 0;
 	&:hover,
 	&:active,
 	&:focus {

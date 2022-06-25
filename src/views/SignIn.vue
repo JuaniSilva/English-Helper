@@ -11,7 +11,7 @@ import router from '../routes';
 const email = ref('');
 const password = ref('');
 const isLoading = ref(false);
-const successful = ref(false);
+const error = ref('');
 
 async function login() {
 	isLoading.value = true;
@@ -23,25 +23,27 @@ async function login() {
 		);
 
 		isLoading.value = false;
-		successful.value = true;
 
 		router.push('/homework');
-	} catch (error) {
+	} catch (err) {
 		isLoading.value = false;
-		console.log(error.code);
-		alert(error.message);
+		error.value = err.code;
+		setTimeout(() => {
+			error.value = '';
+		}, 1000);
 	}
 }
 async function signInWithGoogle() {
 	const provider = new GoogleAuthProvider();
 	try {
 		await signInWithPopup(getAuth(), provider);
-		isLoading.value = false;
-		successful.value = true;
 
 		router.push('/homework');
 	} catch (err) {
-		console.error(err);
+		error.value = err.code;
+		setTimeout(() => {
+			error.value = '';
+		}, 1000);
 	}
 }
 </script>
@@ -50,24 +52,33 @@ async function signInWithGoogle() {
 	<section>
 		<h1>Sign In</h1>
 		<form @submit.prevent class="register-form">
-			<v-text-field
-				v-model="email"
-				variant="underlined"
-				density="default"
-				label="Email"
+			<n-input
+				v-model:value="email"
+				type="text"
 				placeholder="example@example.com"
 			/>
-			<v-text-field
-				v-model="password"
-				variant="underlined"
-				density="default"
-				label="Password"
-				type="password"
-			/>
-			<v-btn color="info" @click="login"> Submit </v-btn>
-			<v-btn color="info" @click="signInWithGoogle">
-				Sign In with Google
-			</v-btn>
+			<n-input v-model:value="password" type="password" />
+			<div class="buttons-container">
+				<n-button
+					strong
+					secondary
+					type="info"
+					@click="login"
+					:loading="isLoading"
+					attr-type="submit"
+				>
+					Submit
+				</n-button>
+				<n-button
+					strong
+					secondary
+					type="info"
+					@click="signInWithGoogle"
+				>
+					Sign In with Google
+				</n-button>
+			</div>
+			<p v-if="error" class="error">* {{ error }} *</p>
 		</form>
 	</section>
 </template>
@@ -82,11 +93,18 @@ section {
 		padding: 1rem;
 		display: flex;
 		flex-direction: column;
-		button {
-			margin-top: 1rem;
+		gap: 1rem;
+		.buttons-container {
+			display: flex;
+			width: 100%;
+			gap: 1rem;
+			.n-button {
+				flex-grow: 1;
+			}
 		}
-		.google-login {
-			font-weight: 600 !important;
+		.error {
+			color: red;
+			text-align: center;
 		}
 	}
 }
