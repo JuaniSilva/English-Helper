@@ -139,6 +139,7 @@ function onCreate() {
 .activities-container {
 	display: flex;
 	gap: 1rem;
+	width: 100%;
 }
 .actions {
 	display: flex;
