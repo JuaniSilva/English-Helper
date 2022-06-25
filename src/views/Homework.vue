@@ -112,6 +112,7 @@ function hide(val) {
 			class="add-chore"
 			secondary
 			strong
+			:focusable="false"
 			>ADD CHORE</n-button
 		>
 		<CreateChoreModal
