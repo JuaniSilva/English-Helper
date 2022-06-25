@@ -25,16 +25,22 @@ async function handleSignOut() {
 		console.error(err);
 	}
 }
-const items = ref([
+const options = ref([
 	{
-		title: 'Homework',
+		label: 'Homework',
+		key: 'homework',
 		route: '/homework'
 	},
 	{
-		title: 'Payments',
+		label: 'Payments',
+		key: 'payments',
 		route: '/payments'
 	}
 ]);
+function handleSelect(key) {
+	const route = options.value.find((option) => option.key === key).route;
+	router.push(route);
+}
 </script>
 
 <template>
@@ -43,18 +49,11 @@ const items = ref([
 			<li class="home">
 				<router-link to="/">Home</router-link>
 			</li>
-			<v-menu transition="slide-y-transition" left>
-				<template v-slot:activator="{ props }">
-					<a v-bind="props" class="dropdown"> Class Stuff </a>
-				</template>
-				<v-list>
-					<v-list-item v-for="(item, i) in items" :key="i">
-						<router-link :to="item.route" class="dropdown-item">{{
-							item.title
-						}}</router-link>
-					</v-list-item>
-				</v-list>
-			</v-menu>
+			<li>
+				<n-dropdown :options="options" @select="handleSelect">
+					<n-button class="dropdown">User profile</n-button>
+				</n-dropdown>
+			</li>
 			<li v-if="!isLoggedIn">
 				<router-link to="/register">Register</router-link>
 			</li>
@@ -107,16 +106,19 @@ nav {
 			}
 		}
 	}
-	.dropdown {
-		padding: 0 1rem;
-	}
 }
-a.dropdown-item {
-	color: black;
-	&:hover {
-		text-decoration: underline;
-		color: $primary-neutral;
-		transition: all 0.15s ease-in-out;
+.n-button {
+	::v-deep(div) {
+		border: none !important;
+	}
+	::v-deep(.n-base-wave-active) {
+		animation: none !important;
+	}
+	&:hover,
+	&:active,
+	&:focus {
+		color: #fff;
+		text-decoration: none;
 	}
 }
 </style>
