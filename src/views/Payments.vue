@@ -1,16 +1,17 @@
 <script setup>
 import { ref, toRef } from 'vue';
 import Button from '@/components/Button.vue';
+import { CopyOutline } from '@vicons/ionicons5';
 
-const CVUText = ref('CVU');
+const CBUText = ref('CVU');
 const aliasText = ref('Alias: stevedvd.mp');
 
-function copyCVU() {
+function copyCBU() {
 	navigator.clipboard.writeText('0000003100071487853926');
-	CVUText.value = 'Copied!';
+	CBUText.value = 'Copied!';
 
 	setTimeout(() => {
-		CVUText.value = 'CVU';
+		CBUText.value = 'CBU';
 	}, 2000);
 }
 function copyAlias() {
@@ -28,15 +29,19 @@ function copyAlias() {
 			<h1>Payments</h1>
 			<h4>Fee: $4000 per month</h4>
 		</header>
-		<div>
-			<Button @click="copyCVU">
-				{{ CVUText }}
-				<img src="../../public/clipboard.png" alt="" />
-			</Button>
-			<Button @click="copyAlias">
+		<div class="buttons-container">
+			<n-button secondary type="info" @click="copyCBU">
+				{{ CBUText }}
+				<template #icon>
+					<n-icon><copy-outline /></n-icon>
+				</template>
+			</n-button>
+			<n-button secondary type="info" @click="copyAlias">
 				{{ aliasText }}
-				<img src="../../public/clipboard.png" alt="" />
-			</Button>
+				<template #icon>
+					<n-icon><copy-outline /></n-icon>
+				</template>
+			</n-button>
 		</div>
 	</section>
 </template>
@@ -53,9 +58,10 @@ section {
 			font-weight: 400;
 		}
 	}
-	img {
-		aspect-ratio: 1;
-		width: 16px;
+	.buttons-container {
+		display: flex;
+		gap: 1rem;
+		margin-top: 1rem;
 	}
 }
 </style>
