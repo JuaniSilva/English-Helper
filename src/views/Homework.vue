@@ -18,8 +18,9 @@ import { getCurrentUser } from '@/composables/user/getUser';
 const homeworkModal = ref(false);
 
 const loading = ref(false);
-
 const chores = ref([]);
+
+const updatingStatus = ref(false);
 
 const db = getFirestore();
 const { user } = getCurrentUser();
@@ -71,6 +72,8 @@ watch(
 );
 
 async function markAsDone(targetChore) {
+	updatingStatus.value = true;
+
 	await updateDoc(doc(db, 'chores', targetChore.id), {
 		isCompleted: !targetChore.isCompleted
 	});
@@ -85,6 +88,7 @@ async function markAsDone(targetChore) {
 		isCompleted: !choreCopy[targetIndex].isCompleted
 	};
 
+	updatingStatus.value = false;
 	chores.value = choreCopy;
 }
 
@@ -97,8 +101,19 @@ function hide(val) {
 		<h1>HOMEWORK</h1>
 		<Loading v-if="loading" />
 		<p v-else-if="hasChores">You dont have any chore</p>
-		<ExtensionPanel v-else :chores="chores" @handle-status="markAsDone" />
-		<v-btn @click="homeworkModal = true" class="add-chore">ADD CHORE</v-btn>
+		<ExtensionPanel
+			v-else
+			:chores="chores"
+			:updating="updatingStatus"
+			@handle-status="markAsDone"
+		/>
+		<n-button
+			@click="homeworkModal = true"
+			class="add-chore"
+			secondary
+			strong
+			>ADD CHORE</n-button
+		>
 		<CreateChoreModal
 			v-model:show="homeworkModal"
 			@update="hide"
@@ -119,6 +134,9 @@ section {
 	.add-chore {
 		align-self: stretch;
 		margin-top: 1rem;
+		background-color: #fff;
+		box-shadow: 0 3px 1px -2px #0003, 0 2px 2px #00000024,
+			0 1px 5px #0000001f;
 	}
 }
 .flatpickr-input {
