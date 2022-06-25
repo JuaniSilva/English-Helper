@@ -1,6 +1,7 @@
 <script setup>
 const props = defineProps({
-	chores: Array
+	chores: Array,
+	updating: Boolean
 });
 </script>
 <template>
@@ -57,22 +58,18 @@ const props = defineProps({
 					</li>
 				</ul>
 				<footer>
-					<v-btn
-						v-if="!chore.isCompleted"
-						size="small"
-						color="info"
+					<n-button
+						class="update-status"
+						:type="chore.isCompleted ? 'error' : 'info'"
+						:loading="updating"
 						@click="$emit('handleStatus', chore)"
 					>
-						Mark as done
-					</v-btn>
-					<v-btn
-						v-else
-						size="small"
-						color="error"
-						@click="$emit('handleStatus', chore)"
-					>
-						Mark as incompleted
-					</v-btn>
+						{{
+							chore.isCompleted
+								? 'Mark as Incompleted'
+								: 'Mark as Done'
+						}}
+					</n-button>
 				</footer>
 			</v-expansion-panel-text>
 		</v-expansion-panel>
@@ -109,6 +106,9 @@ const props = defineProps({
 			display: flex;
 			width: 100%;
 			justify-content: flex-end;
+			.n-button {
+				color: white !important;
+			}
 		}
 	}
 }
