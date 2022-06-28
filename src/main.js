@@ -20,9 +20,4 @@ const firebaseConfig = {
 
 const firebaseApp = initializeApp(firebaseConfig);
 
-import VueFlatPickr from 'vue-flatpickr-component';
-import 'flatpickr/dist/flatpickr.css';
-
-app.use(VueFlatPickr);
-
 app.mount('#app');
