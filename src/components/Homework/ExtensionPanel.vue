@@ -25,7 +25,12 @@ function updateChore(val, chore, index) {
 			<template #header>
 				<header>
 					<h4>{{ chore.title }}</h4>
-					<n-tag round :bordered="false" type="success">
+					<n-tag
+						v-if="chore.isCompleted"
+						round
+						:bordered="false"
+						type="success"
+					>
 						Done
 						<template #icon>
 							<n-icon :component="CheckmarkCircle" />
