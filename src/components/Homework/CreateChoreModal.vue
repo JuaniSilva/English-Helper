@@ -17,7 +17,8 @@ let newChore = ref({
 		{
 			exercise: '',
 			book: '',
-			page: ''
+			page: '',
+			done: false
 		}
 	],
 	createdAt: '',
@@ -69,7 +70,8 @@ function onCreate() {
 	return {
 		exercise: '',
 		book: '',
-		page: ''
+		page: '',
+		done: false
 	};
 }
 </script>
