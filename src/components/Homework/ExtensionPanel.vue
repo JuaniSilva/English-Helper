@@ -1,113 +1,128 @@
 <script setup>
+import { CheckmarkCircle } from '@vicons/ionicons5';
 const props = defineProps({
 	chores: Array,
 	updating: Boolean
 });
+
+const emit = defineEmits(['updateChore']);
+
+function updateChore(val, chore, index) {
+	chore.activities[index].done = val;
+	emit('updateChore', chore);
+}
 </script>
+
 <template>
-	<v-expansion-panels variant="accordion" class="panels">
-		<v-expansion-panel v-for="(chore, i) in chores" :key="i" class="panel">
-			<v-expansion-panel-title class="panel-title">
-				<template v-slot:default="exapnded">
-					<div class="panel-content">
-						<h6>{{ chore.title }}</h6>
-						<v-chip
-							v-if="chore.isCompleted"
-							class="mx-1 tag"
-							close
-							color="green"
-							label
-							text-color="white"
-						>
-							<v-icon
-								start
-								icon="mdi-check"
-								color="green"
-							></v-icon>
-							Done
-						</v-chip>
-					</div>
-				</template>
-			</v-expansion-panel-title>
-			<v-expansion-panel-text class="panel-text">
-				<span class="due-date"
-					><v-chip v-if="chore.endDate" class="ma-2">
-						Due to:
-						{{
-							new Date(
-								chore.endDate.seconds * 1000
-							).toLocaleDateString()
-						}}
-					</v-chip></span
-				>
-				<ul>
+	<n-collapse arrow-placement="right" accordion>
+		<n-collapse-item
+			:title="chore.title"
+			:name="i"
+			v-for="(chore, i) in chores"
+			:key="i"
+			class="collapse-item"
+		>
+			<template #header>
+				<header>
+					<h4>{{ chore.title }}</h4>
+					<n-tag round :bordered="false" type="success">
+						Done
+						<template #icon>
+							<n-icon :component="CheckmarkCircle" />
+						</template>
+					</n-tag>
+				</header>
+			</template>
+
+			<div class="panel-content">
+				<ul class="activities">
 					<li
-						v-if="
-							Array.isArray(chore.activities) &&
-							chore.activities.length > 0
-						"
-						v-for="(activity, i) in chore.activities"
+						v-for="(activity, index) in chore.activities"
+						:key="`${activity.book}${activity.exercise}.${index}`"
 					>
-						{{ activity.exercise }} - {{ activity.book }} - Page
-						{{ activity.page }}
-					</li>
-					<li v-else>
-						{{ chore.activities.exercise }} -
-						{{ chore.activities.book }} - Page
-						{{ chore.activities.page }}
+						<n-checkbox
+							v-model:checked="activity.done"
+							@update:checked="
+								(val) => updateChore(val, chore, index)
+							"
+						>
+							{{ activity.exercise }} - {{ activity.book }} - Page
+							{{ activity.page }}
+						</n-checkbox>
 					</li>
 				</ul>
-				<footer>
-					<n-button
-						class="update-status"
-						:type="chore.isCompleted ? 'error' : 'info'"
-						:loading="updating"
-						@click="$emit('handleStatus', chore)"
-					>
-						{{
-							chore.isCompleted
-								? 'Mark as Incompleted'
-								: 'Mark as Done'
-						}}
-					</n-button>
-				</footer>
-			</v-expansion-panel-text>
-		</v-expansion-panel>
-	</v-expansion-panels>
+				<n-tag :bordered="false" round type="info">
+					Due to:
+					{{
+						new Date(
+							chore.endDate.seconds * 1000
+						).toLocaleDateString()
+					}}
+				</n-tag>
+			</div>
+			<footer>
+				<n-button
+					class="update-status"
+					secondary
+					:type="chore.isCompleted ? 'error' : 'success'"
+					:loading="updating"
+					@click="$emit('handleStatus', chore)"
+				>
+					{{
+						chore.isCompleted
+							? 'Mark as Incompleted'
+							: 'Mark as Done'
+					}}
+				</n-button>
+			</footer>
+		</n-collapse-item>
+	</n-collapse>
 </template>
 
 <style lang="scss" scoped>
-.panel {
-	.panel-title {
-		.panel-content {
+.n-collapse {
+	.n-collapse-item {
+		background-color: #fff;
+		padding: 1rem;
+		margin: 0;
+		box-shadow: 0 3px 1px -2px #0003, 0 2px 2px #00000024,
+			0 1px 5px #0000001f;
+		::v-deep(.n-collapse-item__header) {
+			padding: 0 !important;
+		}
+		header {
 			display: flex;
+			width: 100%;
 			justify-content: space-between;
 			align-items: center;
-			width: 100%;
-			h6 {
-				font-size: 14px;
-			}
-			.tag {
-				background-color: #ffffff;
-				margin: 0 1rem;
-			}
 		}
-	}
-	.panel-text {
-		position: relative;
-		padding: 0.5rem;
-		.due-date {
-			position: absolute;
-			top: 4px;
-			right: 24px;
+		&:first-child {
+			border-radius: 4px 4px 0 0;
+		}
+		&:last-child {
+			border-radius: 0 0 4px 4px;
 		}
 		footer {
-			margin-top: 2rem;
 			display: flex;
-			width: 100%;
 			justify-content: flex-end;
-			.n-button {
-				color: white !important;
+		}
+		.panel-content {
+			padding: 1rem 0;
+			display: flex;
+			justify-content: space-between;
+
+			.activities {
+				display: flex;
+				flex-direction: column !important;
+				gap: 1rem;
+				::v-deep(.n-checkbox-box-wrapper) {
+					order: 2;
+					margin-left: 0.75rem;
+				}
+				::v-deep(.n-checkbox__label) {
+					padding: 0 !important;
+				}
+				list-style: none;
 			}
 		}
 	}

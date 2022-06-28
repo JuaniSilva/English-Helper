@@ -92,6 +92,13 @@ async function markAsDone(targetChore) {
 	chores.value = choreCopy;
 }
 
+// modularizar esto
+async function updateChore(chore) {
+	await updateDoc(doc(db, 'chores', chore.id), {
+		activities: chore.activities
+	});
+}
+
 function hide(val) {
 	homeworkModal.value = val;
 }
@@ -106,6 +113,7 @@ function hide(val) {
 			:chores="chores"
 			:updating="updatingStatus"
 			@handle-status="markAsDone"
+			@update-chore="updateChore"
 		/>
 		<n-button
 			@click="homeworkModal = true"
