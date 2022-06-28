@@ -20,17 +20,9 @@ const firebaseConfig = {
 
 const firebaseApp = initializeApp(firebaseConfig);
 
-// Date Picker
-
 import VueFlatPickr from 'vue-flatpickr-component';
 import 'flatpickr/dist/flatpickr.css';
 
 app.use(VueFlatPickr);
-
-// Vuetify
-import vuetify from './plugins/vuetify';
-
-app.use(vuetify);
-
 
 app.mount('#app');
