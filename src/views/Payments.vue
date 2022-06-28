@@ -2,7 +2,7 @@
 import { ref, toRef } from 'vue';
 import { CopyOutline } from '@vicons/ionicons5';
 
-const CBUText = ref('CVU');
+const CBUText = ref('CBU');
 const aliasText = ref('Alias: stevedvd.mp');
 
 function copyCBU() {
