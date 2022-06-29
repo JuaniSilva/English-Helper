@@ -1,15 +1,27 @@
 <script setup>
-import { CheckmarkCircle } from '@vicons/ionicons5';
+import { CheckmarkCircle, TrashOutline, Warning } from '@vicons/ionicons5';
+import { ref } from 'vue';
 const props = defineProps({
 	chores: Array,
 	updating: Boolean
 });
 
-const emit = defineEmits(['updateChore']);
+const emit = defineEmits(['updateChore', 'deleteChore']);
+
+const deleteModal = ref(false);
+const targetedChore = ref(undefined);
 
 function updateChore(val, chore, index) {
 	chore.activities[index].done = val;
 	emit('updateChore', chore);
+}
+function handleDelete(chore) {
+	deleteModal.value = true;
+	targetedChore.value = chore;
+}
+
+function deleteChore() {
+	emit('deleteChore', targetedChore.value);
 }
 </script>
 
@@ -25,17 +37,29 @@ function updateChore(val, chore, index) {
 			<template #header>
 				<header>
 					<h4>{{ chore.title }}</h4>
-					<n-tag
-						v-if="chore.isCompleted"
-						round
-						:bordered="false"
-						type="success"
-					>
-						Done
-						<template #icon>
-							<n-icon :component="CheckmarkCircle" />
-						</template>
-					</n-tag>
+					<div class="actions">
+						<n-tag
+							v-if="chore.isCompleted"
+							round
+							:bordered="false"
+							type="success"
+						>
+							Done
+							<template #icon>
+								<n-icon :component="CheckmarkCircle" />
+							</template>
+						</n-tag>
+						<n-button
+							quaternary
+							circle
+							type="error"
+							@click.stop="handleDelete(chore)"
+						>
+							<template #icon>
+								<n-icon :component="TrashOutline"></n-icon>
+							</template>
+						</n-button>
+					</div>
 				</header>
 			</template>
 
@@ -82,6 +106,33 @@ function updateChore(val, chore, index) {
 			</footer>
 		</n-collapse-item>
 	</n-collapse>
+	<n-modal
+		v-model:show="deleteModal"
+		preset="card"
+		:style="'width: 800px'"
+		content="Are you sure you want to delete this chore?"
+		positive-text="Confirm"
+		negative-text="Cancel"
+		class="delete-modal"
+	>
+		<template #header>
+			<div class="title">
+				<n-icon :component="Warning" color="#d03050" />WAIT... are you
+				sure?
+			</div>
+		</template>
+		<div>Are you sure you want to delete this chore?</div>
+		<template #action>
+			<div class="actions">
+				<n-button secondary type="default" @click="deleteModal = false">
+					Cancel
+				</n-button>
+				<n-button secondary type="error" @click="deleteChore">
+					Delete Chore
+				</n-button>
+			</div>
+		</template>
+	</n-modal>
 </template>
 
 <style lang="scss" scoped>
@@ -100,6 +151,11 @@ function updateChore(val, chore, index) {
 			width: 100%;
 			justify-content: space-between;
 			align-items: center;
+			.actions {
+				display: flex;
+				gap: 0.5rem;
+				align-items: center;
+			}
 		}
 		&:first-child {
 			border-radius: 4px 4px 0 0;
@@ -130,6 +186,18 @@ function updateChore(val, chore, index) {
 				list-style: none;
 			}
 		}
+	}
+}
+.delete-modal {
+	.title {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+	.actions {
+		display: flex;
+		justify-content: flex-end;
+		gap: 1rem;
 	}
 }
 </style>

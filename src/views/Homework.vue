@@ -7,6 +7,7 @@ import {
 	onSnapshot,
 	orderBy,
 	updateDoc,
+	deleteDoc,
 	doc,
 	where
 } from 'firebase/firestore';
@@ -14,6 +15,7 @@ import Loading from '@/components/Loading.vue';
 import ExtensionPanel from '@/components/Homework/ExtensionPanel.vue';
 import CreateChoreModal from '@/components/Homework/CreateChoreModal.vue';
 import { getCurrentUser } from '@/composables/user/getUser';
+import { async } from '@firebase/util';
 
 const homeworkModal = ref(false);
 
@@ -99,6 +101,12 @@ async function updateChore(chore) {
 	});
 }
 
+async function deleteChore(chore) {
+	console.log('working');
+	console.log(chore);
+	await deleteDoc(doc(db, 'chores', chore.id));
+}
+
 function hide(val) {
 	homeworkModal.value = val;
 }
@@ -114,6 +122,7 @@ function hide(val) {
 			:updating="updatingStatus"
 			@handle-status="markAsDone"
 			@update-chore="updateChore"
+			@delete-chore="deleteChore"
 		/>
 		<n-button
 			@click="homeworkModal = true"
