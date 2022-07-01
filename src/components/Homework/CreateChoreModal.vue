@@ -1,7 +1,7 @@
-<script setup>
+<script setup lang="ts">
 import { ref, watch } from 'vue';
 import { addDoc, getFirestore, collection } from '@firebase/firestore';
-import { getCurrentUser } from '@/composables/user/getUser';
+import { getCurrentUser } from '../../composables/user/getUser';
 const { user } = getCurrentUser();
 
 const props = defineProps(['show']);
@@ -17,11 +17,11 @@ let newChore = ref({
 		{
 			exercise: '',
 			book: '',
-			page: '',
+			page: 0,
 			done: false
 		}
 	],
-	createdAt: '',
+	createdAt: null,
 	editedAt: '',
 	isCompleted: false
 });
@@ -50,7 +50,8 @@ async function addChore() {
 				{
 					exercise: '',
 					book: '',
-					page: ''
+					page: 0,
+					done: false
 				}
 			],
 			createdAt: '',
@@ -109,11 +110,7 @@ function onCreate() {
 							type="text"
 							placeholder="Book"
 						/>
-						<n-input
-							v-model:value="value.page"
-							type="number"
-							placeholder="Page"
-						/>
+						<n-input-number v-model:value="value.page" clearable />
 					</div>
 				</template>
 			</n-dynamic-input>
