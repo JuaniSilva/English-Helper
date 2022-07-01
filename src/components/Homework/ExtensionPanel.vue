@@ -1,12 +1,12 @@
-<script setup>
+<script setup lang="ts">
 import { CheckmarkCircle, TrashOutline, Warning } from '@vicons/ionicons5';
 import { ref } from 'vue';
-const props = defineProps({
-	chores: Array,
-	updating: Boolean
-});
+const props = defineProps<{
+	chores: any[];
+	updating: boolean;
+}>();
 
-const emit = defineEmits(['updateChore', 'deleteChore']);
+const emit = defineEmits(['updateChore', 'deleteChore', 'handleStatus']);
 
 const deleteModal = ref(false);
 const targetedChore = ref(undefined);

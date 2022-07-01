@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue';
 import {
 	getFirestore,
@@ -14,8 +14,7 @@ import {
 import Loading from '@/components/Loading.vue';
 import ExtensionPanel from '@/components/Homework/ExtensionPanel.vue';
 import CreateChoreModal from '@/components/Homework/CreateChoreModal.vue';
-import { getCurrentUser } from '@/composables/user/getUser';
-import { async } from '@firebase/util';
+import { getCurrentUser } from '../composables/user/getUser';
 
 const homeworkModal = ref(false);
 

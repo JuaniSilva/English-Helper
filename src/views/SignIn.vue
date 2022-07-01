@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue';
 import {
 	getAuth,
@@ -6,7 +6,7 @@ import {
 	GoogleAuthProvider,
 	signInWithPopup
 } from 'firebase/auth';
-import router from '../routes';
+import router from '../routes/index.js';
 
 const email = ref('');
 const password = ref('');
