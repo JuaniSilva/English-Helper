@@ -1,5 +1,10 @@
 <script setup lang="ts">
-import { CheckmarkCircle, TrashOutline, Warning } from '@vicons/ionicons5';
+import {
+	CheckmarkCircle,
+	TrashOutline,
+	Warning,
+	Pencil
+} from '@vicons/ionicons5';
 import { ref } from 'vue';
 const props = defineProps<{
 	chores: any[];
@@ -11,7 +16,7 @@ const emit = defineEmits(['updateChore', 'deleteChore', 'handleStatus']);
 const deleteModal = ref(false);
 const targetedChore = ref(undefined);
 
-function updateChore(val, chore, index) {
+function updateChore(val: boolean, chore, index: number) {
 	chore.activities[index].done = val;
 	emit('updateChore', chore);
 }
@@ -22,6 +27,7 @@ function handleDelete(chore) {
 
 function deleteChore() {
 	emit('deleteChore', targetedChore.value);
+	deleteModal.value = false;
 }
 </script>
 
@@ -48,6 +54,14 @@ function deleteChore() {
 							<template #icon>
 								<n-icon :component="CheckmarkCircle" />
 							</template>
+						</n-tag>
+						<n-tag :bordered="false" round type="info">
+							Due to:
+							{{
+								new Date(
+									chore.endDate.seconds * 1000
+								).toLocaleDateString()
+							}}
 						</n-tag>
 						<n-button
 							quaternary
@@ -80,14 +94,11 @@ function deleteChore() {
 						</n-checkbox>
 					</li>
 				</ul>
-				<n-tag :bordered="false" round type="info">
-					Due to:
-					{{
-						new Date(
-							chore.endDate.seconds * 1000
-						).toLocaleDateString()
-					}}
-				</n-tag>
+				<n-button quaternary circle>
+					<template #icon>
+						<n-icon :component="Pencil"></n-icon>
+					</template>
+				</n-button>
 			</div>
 			<footer>
 				<n-button

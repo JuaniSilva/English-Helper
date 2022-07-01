@@ -101,9 +101,11 @@ async function updateChore(chore) {
 }
 
 async function deleteChore(chore) {
-	console.log('working');
-	console.log(chore);
-	await deleteDoc(doc(db, 'chores', chore.id));
+	try {
+		await deleteDoc(doc(db, 'chores', chore.id));
+	} catch (error) {
+		console.error(error);
+	}
 }
 
 function hide(val) {

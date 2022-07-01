@@ -126,7 +126,12 @@ function onCreate() {
 		</form>
 		<template #action>
 			<div class="actions">
-				<n-button secondary type="primary" @click="addChore">
+				<n-button
+					secondary
+					type="primary"
+					@click="addChore"
+					:loading="creatingChore"
+				>
 					Create Chore
 				</n-button>
 				<n-button secondary type="error" @click="emit('update', false)">
