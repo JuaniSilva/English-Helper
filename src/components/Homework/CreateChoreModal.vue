@@ -110,7 +110,10 @@ function onCreate() {
 							type="text"
 							placeholder="Book"
 						/>
-						<n-input-number v-model:value="value.page" clearable />
+						<n-input-number
+							v-model:value="value.page"
+							placeholder="Page"
+						/>
 					</div>
 				</template>
 			</n-dynamic-input>
