@@ -1,5 +1,12 @@
 <script setup lang="ts">
-import { CheckmarkCircle, TrashOutline, Warning } from '@vicons/ionicons5';
+import {
+	CheckmarkCircle,
+	TrashOutline,
+	Warning,
+	Pencil,
+	SaveOutline,
+	CloseOutline
+} from '@vicons/ionicons5';
 import { ref } from 'vue';
 const props = defineProps<{
 	chores: any[];
@@ -10,8 +17,9 @@ const emit = defineEmits(['updateChore', 'deleteChore', 'handleStatus']);
 
 const deleteModal = ref(false);
 const targetedChore = ref(undefined);
+const editingChore = ref(false);
 
-function updateChore(val, chore, index) {
+function updateChore(val: boolean, chore, index: number) {
 	chore.activities[index].done = val;
 	emit('updateChore', chore);
 }
@@ -22,6 +30,17 @@ function handleDelete(chore) {
 
 function deleteChore() {
 	emit('deleteChore', targetedChore.value);
+	deleteModal.value = false;
+}
+
+function startEditing(chore) {
+	targetedChore.value = JSON.parse(JSON.stringify(chore));
+	editingChore.value = true;
+}
+
+function handleEdit() {
+	emit('updateChore', targetedChore.value);
+	editingChore.value = false;
 }
 </script>
 
@@ -49,6 +68,14 @@ function deleteChore() {
 								<n-icon :component="CheckmarkCircle" />
 							</template>
 						</n-tag>
+						<n-tag :bordered="false" round type="info">
+							Due to:
+							{{
+								new Date(
+									chore.endDate.seconds * 1000
+								).toLocaleDateString()
+							}}
+						</n-tag>
 						<n-button
 							quaternary
 							circle
@@ -64,7 +91,7 @@ function deleteChore() {
 			</template>
 
 			<div class="panel-content">
-				<ul class="activities">
+				<ul class="activities" v-if="!editingChore">
 					<li
 						v-for="(activity, index) in chore.activities"
 						:key="`${activity.book}${activity.exercise}.${index}`"
@@ -80,14 +107,60 @@ function deleteChore() {
 						</n-checkbox>
 					</li>
 				</ul>
-				<n-tag :bordered="false" round type="info">
-					Due to:
-					{{
-						new Date(
-							chore.endDate.seconds * 1000
-						).toLocaleDateString()
-					}}
-				</n-tag>
+				<div v-else>
+					<div
+						v-for="activity in targetedChore.activities"
+						class="activity-wrapper"
+					>
+						<n-input
+							v-model:value="activity.exercise"
+							type="text"
+							placeholder="Basic Input"
+						/>
+						<n-input
+							v-model:value="activity.book"
+							type="text"
+							placeholder="Basic Input"
+						/>
+						<n-input-number
+							v-model:value="activity.page"
+							type="text"
+							placeholder="Basic Input"
+						/>
+					</div>
+				</div>
+				<n-button
+					v-if="!editingChore"
+					quaternary
+					circle
+					@click="startEditing(chore)"
+				>
+					<template #icon>
+						<n-icon :component="Pencil"></n-icon>
+					</template>
+				</n-button>
+				<div v-else class="editing-actions">
+					<n-button
+						quaternary
+						circle
+						type="success"
+						@click="handleEdit"
+					>
+						<template #icon>
+							<n-icon :component="SaveOutline"></n-icon>
+						</template>
+					</n-button>
+					<n-button
+						quaternary
+						circle
+						type="error"
+						@click="editingChore = false"
+					>
+						<template #icon>
+							<n-icon :component="CloseOutline"></n-icon>
+						</template>
+					</n-button>
+				</div>
 			</div>
 			<footer>
 				<n-button
@@ -184,6 +257,15 @@ function deleteChore() {
 					padding: 0 !important;
 				}
 				list-style: none;
+			}
+			.activity-wrapper {
+				display: flex;
+				gap: 1rem;
+				margin-bottom: 1rem;
+			}
+			.editing-actions {
+				display: flex;
+				flex-direction: column;
 			}
 		}
 	}

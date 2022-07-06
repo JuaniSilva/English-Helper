@@ -41,14 +41,27 @@ onMounted(async () => {
 					loading.value = false;
 					return;
 				}
-				for (let firebaseDoc of snapshot.docChanges()) {
-					if (firebaseDoc.type === 'added') {
+				for (let change of snapshot.docChanges()) {
+					if (change.type === 'added') {
 						chores.value.push({
-							...firebaseDoc.doc.data(),
-							id: firebaseDoc.doc.id
+							...change.doc.data(),
+							id: change.doc.id
 						});
-					} else if (firebaseDoc.type === 'removed') {
-						chores.value.splice(firebaseDoc.oldIndex, 1);
+					}
+					if (change.type === 'modified') {
+						const choresCopy = [...chores.value];
+
+						const choreIndex = chores.value.findIndex(
+							(chore) => chore.id === change.doc.id
+						);
+
+						if (choreIndex < 0) return;
+						choresCopy[choreIndex] = change.doc.data();
+
+						chores.value = [...choresCopy];
+					}
+					if (change.type === 'removed') {
+						chores.value.splice(change.oldIndex, 1);
 					}
 				}
 			}
@@ -101,9 +114,11 @@ async function updateChore(chore) {
 }
 
 async function deleteChore(chore) {
-	console.log('working');
-	console.log(chore);
-	await deleteDoc(doc(db, 'chores', chore.id));
+	try {
+		await deleteDoc(doc(db, 'chores', chore.id));
+	} catch (error) {
+		console.error(error);
+	}
 }
 
 function hide(val) {
