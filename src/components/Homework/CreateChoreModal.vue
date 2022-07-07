@@ -71,7 +71,7 @@ function onCreate() {
 	return {
 		exercise: '',
 		book: '',
-		page: '',
+		page: 0,
 		done: false
 	};
 }

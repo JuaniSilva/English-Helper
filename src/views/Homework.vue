@@ -15,11 +15,12 @@ import Loading from '@/components/Loading.vue';
 import ExtensionPanel from '@/components/Homework/ExtensionPanel.vue';
 import CreateChoreModal from '@/components/Homework/CreateChoreModal.vue';
 import { getCurrentUser } from '../composables/user/getUser';
+import { chore } from 'EnglishHelper';
 
 const homeworkModal = ref(false);
 
 const loading = ref(false);
-const chores = ref([]);
+const chores = ref<chore[]>([]);
 
 const updatingStatus = ref(false);
 
@@ -88,7 +89,7 @@ watch(
 	}
 );
 
-async function markAsDone(targetChore) {
+async function markAsDone(targetChore: chore) {
 	updatingStatus.value = true;
 
 	await updateDoc(doc(db, 'chores', targetChore.id), {
@@ -110,13 +111,13 @@ async function markAsDone(targetChore) {
 }
 
 // modularizar esto
-async function updateChore(chore) {
+async function updateChore(chore: chore) {
 	await updateDoc(doc(db, 'chores', chore.id), {
 		activities: chore.activities
 	});
 }
 
-async function deleteChore(chore) {
+async function deleteChore(chore: chore) {
 	try {
 		await deleteDoc(doc(db, 'chores', chore.id));
 	} catch (error) {
@@ -124,7 +125,7 @@ async function deleteChore(chore) {
 	}
 }
 
-function hide(val) {
+function hide(val: boolean) {
 	homeworkModal.value = val;
 }
 </script>

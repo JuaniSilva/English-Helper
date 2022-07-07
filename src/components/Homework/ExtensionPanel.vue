@@ -42,10 +42,17 @@ function handleEdit() {
 	emit('updateChore', targetedChore.value);
 	editingChore.value = false;
 }
+function collapseEvent(val) {
+	editingChore.value = false;
+}
 </script>
 
 <template>
-	<n-collapse arrow-placement="right" accordion>
+	<n-collapse
+		arrow-placement="right"
+		accordion
+		@item-header-click="collapseEvent"
+	>
 		<n-collapse-item
 			:title="chore.title"
 			:name="i"
