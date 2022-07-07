@@ -56,7 +56,10 @@ onMounted(async () => {
 						);
 
 						if (choreIndex < 0) return;
-						choresCopy[choreIndex] = change.doc.data();
+						choresCopy[choreIndex] = {
+							...change.doc.data(),
+							id: change.doc.id
+						};
 
 						chores.value = [...choresCopy];
 					}
