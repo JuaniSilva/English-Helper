@@ -1,8 +1,9 @@
 declare module 'EnglishHelper' {
 	import { Timestamp } from '@firebase/firestore';
+
 	export interface chore {
 		activities?: activity[];
-		createdAt?: Timestamp;
+		createdAt?: Timestamp | Date;
 		editedAt?: string;
 		endDate?: Timestamp;
 		id?: string;

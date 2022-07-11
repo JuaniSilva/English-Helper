@@ -2,6 +2,8 @@
 import { ref, watch } from 'vue';
 import { addDoc, getFirestore, collection } from '@firebase/firestore';
 import { getCurrentUser } from '../../composables/user/getUser';
+import { activity, chore } from 'EnglishHelper';
+
 const { user } = getCurrentUser();
 
 const props = defineProps(['show']);
@@ -9,10 +11,11 @@ const emit = defineEmits(['update']);
 
 const creatingChore = ref(false);
 const db = getFirestore();
+const dateForPicker = +new Date();
 
-let newChore = ref({
+let newChore = ref<chore>({
 	title: '',
-	endDate: +new Date(),
+	endDate: null,
 	activities: [
 		{
 			exercise: '',
@@ -30,7 +33,7 @@ async function addChore() {
 	try {
 		creatingChore.value = true;
 
-		const endDate = new Date(newChore.value.endDate);
+		const endDate = new Date(Number(newChore.value.endDate));
 
 		newChore.value.createdAt = new Date();
 
@@ -45,7 +48,7 @@ async function addChore() {
 
 		newChore.value = {
 			title: '',
-			endDate: +new Date(),
+			endDate: null,
 			activities: [
 				{
 					exercise: '',
@@ -54,7 +57,7 @@ async function addChore() {
 					done: false
 				}
 			],
-			createdAt: '',
+			createdAt: null,
 			editedAt: '',
 			isCompleted: false
 		};
@@ -67,7 +70,7 @@ async function addChore() {
 	}
 }
 
-function onCreate() {
+function onCreate(): activity {
 	return {
 		exercise: '',
 		book: '',
@@ -119,7 +122,7 @@ function onCreate() {
 			</n-dynamic-input>
 			<n-divider> </n-divider>
 			<n-date-picker
-				v-model:value="newChore.endDate"
+				v-model:value="dateForPicker"
 				type="date"
 				clearable
 			/>
