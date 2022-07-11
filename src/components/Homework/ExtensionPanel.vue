@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref } from 'vue';
 import {
 	CheckmarkCircle,
 	TrashOutline,
@@ -7,9 +8,10 @@ import {
 	SaveOutline,
 	CloseOutline
 } from '@vicons/ionicons5';
-import { ref } from 'vue';
+import type { chore } from 'EnglishHelper';
+
 const props = defineProps<{
-	chores: any[];
+	chores: chore[];
 	updating: boolean;
 }>();
 
@@ -19,7 +21,7 @@ const deleteModal = ref(false);
 const targetedChore = ref(undefined);
 const editingChore = ref(false);
 
-function updateChore(val: boolean, chore, index: number) {
+function updateChore(val: boolean, chore: chore, index: number) {
 	chore.activities[index].done = val;
 	emit('updateChore', chore);
 }
@@ -33,7 +35,7 @@ function deleteChore() {
 	deleteModal.value = false;
 }
 
-function startEditing(chore) {
+function startEditing(chore: chore) {
 	targetedChore.value = JSON.parse(JSON.stringify(chore));
 	editingChore.value = true;
 }
@@ -42,7 +44,7 @@ function handleEdit() {
 	emit('updateChore', targetedChore.value);
 	editingChore.value = false;
 }
-function collapseEvent(val) {
+function collapseEvent() {
 	editingChore.value = false;
 }
 </script>
