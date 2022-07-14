@@ -96,18 +96,7 @@ async function markAsDone(targetChore: chore) {
 		isCompleted: !targetChore.isCompleted
 	});
 
-	const targetIndex = chores.value.findIndex(
-		(chore) => chore.id === targetChore.id
-	);
-
-	let choreCopy = chores.value;
-	choreCopy[targetIndex] = {
-		...choreCopy[targetIndex],
-		isCompleted: !choreCopy[targetIndex].isCompleted
-	};
-
 	updatingStatus.value = false;
-	chores.value = choreCopy;
 }
 
 // modularizar esto
