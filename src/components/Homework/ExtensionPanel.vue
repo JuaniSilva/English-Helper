@@ -47,6 +47,10 @@ function handleEdit() {
 function collapseEvent() {
 	editingChore.value = false;
 }
+function cancelEdit() {
+	editingChore.value = false;
+	targetedChore.value = null;
+}
 </script>
 
 <template>
@@ -64,7 +68,17 @@ function collapseEvent() {
 		>
 			<template #header>
 				<header>
-					<h4>{{ chore.title }}</h4>
+					<h4 v-if="!editingChore || targetedChore.id !== chore.id">
+						{{ chore.title }}
+					</h4>
+					<n-input
+						v-else-if="
+							targetedChore.id === chore.id && editingChore
+						"
+						v-model:value="chore.title"
+						type="text"
+						class="title-input"
+					/>
 					<div class="actions">
 						<n-tag
 							v-if="chore.isCompleted"
@@ -153,6 +167,7 @@ function collapseEvent() {
 						quaternary
 						circle
 						type="success"
+						atrr-type="submit"
 						@click="handleEdit"
 					>
 						<template #icon>
@@ -163,7 +178,7 @@ function collapseEvent() {
 						quaternary
 						circle
 						type="error"
-						@click="editingChore = false"
+						@click="cancelEdit"
 					>
 						<template #icon>
 							<n-icon :component="CloseOutline"></n-icon>
@@ -233,6 +248,9 @@ function collapseEvent() {
 			width: 100%;
 			justify-content: space-between;
 			align-items: center;
+			.n-input {
+				max-width: 200px;
+			}
 			.actions {
 				display: flex;
 				gap: 0.5rem;
